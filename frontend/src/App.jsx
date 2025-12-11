@@ -34,41 +34,58 @@ function App() {
 
     const onSubmitForm = async (e) => {
         e.preventDefault();
+        if(!description.trim()) return;
         try {
-            await axios.post("http://localhost:5000/todos", {
+            setError(null);
+            const res = await axios.post("http://localhost:5000/todos", {
                 description, completed: false
             });
+            setTodos([...todos,res.data]);
             setDescription("");
-            await getTodos();
         } catch (e) {
             console.error(e.message);
+            setError("Failed to add todo. Please try again later.");
         }
     };
 
     const saveEdit = async (id) => {
         try {
-           await axios.put(`http://localhost:5000/todos/${id}`, {
+            setError(null);
+
+            const currentTodo = todos.find((todo) => todo.todo_id === id);
+            const trimmedText = editedText.trim();
+
+            if (currentTodo.description === trimmedText) {
+                setEditingTodo(null);
+                setEditedText("");
+                return;
+            }
+
+            await axios.put(`http://localhost:5000/todos/${id}`, {
                description: editedText,
            });
            setEditingTodo(null);
            setEditedText("");
-           await getTodos();
+           setTodos(todos.map((todo) => !todo.todo_id === id ? {...todo,description: editedText, completed: false} : todo));
         } catch (e) {
             console.error(e.message);
+            setError("Failed to update todo. Please try again later.");
         }
     };
 
     const deleteTodo = async (id) => {
-        try {
+        try {setError(null);
             await axios.delete(`http://localhost:5000/todos/${id}`);
             setTodos(todos.filter((todo) => todo.todo_id !== id));
         } catch(e) {
             console.error(e.message);
+            setError("Failed to delete todo. Please try again later.");
         }
     };
 
     const toggleCompleted = async (id) => {
         try {
+            setError(null);
             const todo = todos.find((todo) => todo.todo_id === id);
             await axios.put(`http://localhost:5000/todos/${id}`, {
                 description: todo.description,
@@ -78,6 +95,7 @@ function App() {
             completed: !todo.completed} : todo)));
         }catch (e) {
             console.error(e.message);
+            setError("Failed to update todo. Please try again later.");
         }
     }
 
@@ -85,6 +103,7 @@ function App() {
         <div className="min-h-screen bg-gray-800 flex justify-center items-center p-4">
             <div className="bg-gray-50 rounded-2xl shadow-xlw-full max-w-lg p-8">
                 <h1 className="text-4xl font-bold text-gray-800 mb-8">PERN TODO APP</h1>
+                {error && <div className="bg-red-100 text-red-700 p-3 rounded mb-4">{error}</div>}
                 <form onSubmit={onSubmitForm} className="flex items-center gap-2 shadow-sm border p-2 rounded-lg mb-6 ">
                     <input className="flex-1 outline-none px-3 py-2 text-gray-700 placeholder-gray-400" type="text" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What needs to be done?" required />
                     <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md font-medium cursor-pointer ">Add Task</button>
