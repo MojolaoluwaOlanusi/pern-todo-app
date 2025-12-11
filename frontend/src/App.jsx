@@ -31,7 +31,7 @@ function App() {
         try {
             setLoading(true);
             setError(null);
-            const res = await axios.get("http://localhost:5000/todos");
+            const res = await axios.get("https://pern-todo-app-bbmq.onrender.com/todos");
             setTodos(res.data);
             console.log(res.data);
         } catch (e) {
@@ -51,7 +51,7 @@ function App() {
         if(!description.trim()) return;
         try {
             setError(null);
-            const res = await axios.post("http://localhost:5000/todos", {
+            const res = await axios.post("https://pern-todo-app-bbmq.onrender.com/todos", {
                 description, completed: false
             });
             setTodos([...todos,res.data]);
@@ -75,7 +75,7 @@ function App() {
                 return;
             }
 
-            await axios.put(`http://localhost:5000/todos/${id}`, {
+            await axios.put(`https://pern-todo-app-bbmq.onrender.com/todos/${id}`, {
                 description: trimmedText,
             });
             setEditingTodo(null);
@@ -90,7 +90,7 @@ function App() {
     const deleteTodo = async (id) => {
         try {
             setError(null);
-            await axios.delete(`http://localhost:5000/todos/${id}`);
+            await axios.delete(`https://pern-todo-app-bbmq.onrender.com/todos/${id}`);
             setTodos(todos.filter((todo) => todo.todo_id !== id));
         } catch(e) {
             console.error(e.message);
